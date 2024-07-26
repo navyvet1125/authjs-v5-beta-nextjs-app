@@ -5,8 +5,12 @@ import { db } from "@/lib/db";
 
 import { RegisterSchema } from "@/schemas";
 import { getUserByEmail } from "@/data/user";
+import { generateVerificationToken } from "@/lib/tokens";
 
 export const register = async (values: z.infer<typeof RegisterSchema>) => {
+    const ERROR_MESSAGE = "An error occurred, please try again later.  If the problem persists, please contact support.";
+    try{
+
     const validatedFields = RegisterSchema.safeParse(values);
 
     if (!validatedFields.success) {
@@ -34,7 +38,18 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
         },
     });
 
-    // TODO: Send verification token email
+    const verificationToken = await generateVerificationToken(email);
+    if (!verificationToken) {
+        return {
+            error: ERROR_MESSAGE,
+        };
+    }
 
-    return {success: "User created!"};
+    return {success: "Confirmation email sent!"};
+    } catch (error) {
+        console.error("Error in register! ", error);
+        return {
+            error: ERROR_MESSAGE,
+        };
+    }
 }

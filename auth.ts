@@ -36,9 +36,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }
   },
   callbacks: {
-    async signIn({ user }) {
+    async signIn({ user, account, email }) {
+      // Ensure user object is defined
+      if (!user) return false;
+
+      // Allow sign in if account is not credentials
+      if (account?.provider !== "credentials") return true;
+
+      // Ensure email is verified, reject sign in if not
       const existingUser = await getUserById(user.id!);
-      if ( existingUser&& !existingUser.emailVerified && existingUser.password) return false;
+      if ( !existingUser?.emailVerified ) return false;
+      
       return true;
     },
     async jwt({ token, user }) {

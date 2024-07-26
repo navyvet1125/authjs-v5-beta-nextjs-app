@@ -24,7 +24,3 @@ export const RegisterSchema = z.object({
         message: "Name is required"
     }),
 });
-
-export interface UserRoleSchema {
-    role: "ADMIN" | "USER";
-}

@@ -1,31 +1,18 @@
 import React from 'react'
+import { auth } from '@/auth'
+import { LogOutButton } from '@/components/auth/logoutButton'
 
-import { auth, signOut } from '@/auth'
-import { Button } from '@/components/ui/button'
-
-const SignOut = () => {
-  return (
-    <form
-    action={async () => {
-      "use server"
-      await signOut()
-    }}
-  >
-    <button type="submit">Sign Out</button>
-  </form>
-  )
-}
 
 
 const SettingsPage = async () => {
   const session = await auth();
 
   return (
-    <div>
-        <h1>Settings</h1>
-        <h2>Session: </h2>
+    <div className='p-8'>
+        <h1 className='text-xl font-semibold'>Settings</h1>
+        <h2 className='text-lg font-semibold'>Session: </h2>
         <pre>{JSON.stringify(session, null, 2)}</pre>
-        <SignOut />
+        <LogOutButton />
     </div>
   )
 }

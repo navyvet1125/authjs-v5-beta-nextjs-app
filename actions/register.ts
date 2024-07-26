@@ -36,6 +36,7 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
             email,
             password: hashedPassword,
             name,
+
         },
     });
 
@@ -46,7 +47,7 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
         };
     }
     await sendVerificationEmail(email, verificationToken.token);
-    
+
     return {success: "Confirmation email sent!"};
     } catch (error) {
         console.error("Error in register! ", error);

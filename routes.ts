@@ -13,7 +13,8 @@ export const authRoutes = [
     "/auth/login",
     "/auth/register",
     "/auth/error",
-    "/auth/forgot-password",
+    "/auth/reset",
+    "/auth/new-password",
 ];
 
 // The prefix for the authentication API routes

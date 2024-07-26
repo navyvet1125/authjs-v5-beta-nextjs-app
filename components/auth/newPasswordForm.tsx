@@ -1,9 +1,10 @@
 "use client";
 import * as z from "zod";
 import { useState, useTransition } from "react";
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ForgotSchema } from "@/schemas";
+import { NewPasswordSchema } from "@/schemas";
 import { Input } from "@/components/ui/input";
 import {
    Form,
@@ -17,24 +18,27 @@ import { CardWrapper } from "@/components/auth/cardWrapper";
 import { Button } from "@/components/ui/button";
 import { FormError } from "@/components/formError";
 import { FormSuccess } from "@/components/formSuccess";
-import { forgot } from "@/actions/forgot";
+// import { reset } from "@/actions/reset";
+import { newPassword } from "@/actions/new-password";
 
-export const ForgotPasswordForm = () => {
+export const NewPasswordForm = () => {
+    const searchParams = useSearchParams();
+    const token = searchParams.get("token");
     const [error, setError] = useState<string | undefined>("");
     const [success, setSuccess] = useState<string | undefined>("");
     const [isPending, startTransition] = useTransition();
-    const form = useForm<z.infer<typeof ForgotSchema>>({
-        resolver: zodResolver(ForgotSchema),
+    const form = useForm<z.infer<typeof NewPasswordSchema>>({
+        resolver: zodResolver(NewPasswordSchema),
         defaultValues: {
-            email: "",
+            password: "",
         }
     });
 
-    const onSubmit = (data: z.infer<typeof ForgotSchema>) => {
+    const onSubmit = (data: z.infer<typeof NewPasswordSchema>) => {
         setError("");
         setSuccess("");
         startTransition(() => {
-            forgot(data)
+            newPassword(data, token)
             .then((data) => {
                 if(data){
                     if(data.success) {
@@ -49,7 +53,7 @@ export const ForgotPasswordForm = () => {
 
     return (
         <CardWrapper
-            headerLabel="Forgot Password?"
+            headerLabel="Enter a new password"
             backButtonLabel="Back to Login"
             backButtonHref="/auth/login"
         >
@@ -61,16 +65,16 @@ export const ForgotPasswordForm = () => {
                     <div className="space-y-4">
                         <FormField
                             control={form.control}
-                            name="email"
+                            name="password"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Email</FormLabel>
+                                    <FormLabel>Password</FormLabel>
                                     <FormControl>
                                         <Input {...field}
-                                        disabled={isPending}
-                                        placeholder="email@example.com" 
-                                        type="email"
-                                        autoComplete="email"
+                                        disabled={isPending || !!success}
+                                        placeholder="********" 
+                                        type="password"
+                                        autoComplete="password"
                                          />
                                     </FormControl>
                                     <FormMessage />
@@ -85,7 +89,7 @@ export const ForgotPasswordForm = () => {
                     type="submit"
                     className="w-full"
                     >
-                        Reset
+                        Reset Password
                     </Button>
                 </form>
             </Form>

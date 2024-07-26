@@ -1,14 +1,14 @@
 "use server";
 import * as z from "zod";
-import { ForgotSchema } from "@/schemas";
+import { ResetSchema } from "@/schemas";
 import { getUserByEmail } from "@/data/user";
 import { sendPasswordResetEmail } from "@/lib/mail";
 import { generatePasswordResetToken } from "@/lib/tokens";
 
-export const forgot = async (values: z.infer<typeof ForgotSchema>) => {
-    const ERROR_MESSAGE = "If the email exists, a reset link will be sent.";
+export const reset = async (values: z.infer<typeof ResetSchema>) => {
+    const RESPONSE_MESSAGE = "If the email exists, a reset link will be sent.";
     try {
-        const validatedFields = ForgotSchema.safeParse(values);
+        const validatedFields = ResetSchema.safeParse(values);
        if (!validatedFields.success) {
             return {
                 error: "Invalid email",
@@ -19,12 +19,12 @@ export const forgot = async (values: z.infer<typeof ForgotSchema>) => {
 
         if (!existingUser) {
             return {
-                success: ERROR_MESSAGE,
+                success: RESPONSE_MESSAGE,
             };
         }
         if (existingUser.emailVerified === null) {
             return {
-                success: ERROR_MESSAGE,
+                success: RESPONSE_MESSAGE,
             };
         }
         if (!existingUser.password) {
@@ -40,7 +40,7 @@ export const forgot = async (values: z.infer<typeof ForgotSchema>) => {
         }
         await sendPasswordResetEmail(passwordResetToken.email, passwordResetToken.token);
 
-        return { success: ERROR_MESSAGE };
+        return { success: RESPONSE_MESSAGE };
     } catch (error) {
         console.error("Error in forgot action! ", error);
         return {

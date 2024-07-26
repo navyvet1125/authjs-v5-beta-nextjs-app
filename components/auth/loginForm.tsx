@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginSchema } from "@/schemas";
 import { Input } from "@/components/ui/input";
+import Link from "next/link";
 import {
    Form,
    FormControl,
@@ -98,6 +99,16 @@ export const LoginForm = () => {
                                         autoComplete="current-password"
                                          />
                                     </FormControl>
+                                    <Button
+                                        size="sm"
+                                        variant="link"
+                                        asChild
+                                        className="px-0 font-normal"
+                                    >
+                                        <Link href="/auth/forgot-password">
+                                            Forgot password?
+                                        </Link>
+                                    </Button>
                                     <FormMessage />
                                 </FormItem>)}
                         />

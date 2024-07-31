@@ -4,7 +4,13 @@ import { LogOutButton } from '@/components/auth/logoutButton'
 // import { useCurrentUser } from '@/hooks/use-current-user';
 // import TwoFactorInput from '@/components/auth/twoFactorInput';
 
+import { metadata as layoutMetadata } from '@/app/(protected)/layout';
 
+export const metadata = {
+    ...layoutMetadata,
+    title: `${layoutMetadata.title} - Settings`,
+    description: 'Settings',
+  };
 
 
 const SettingsPage = () => {

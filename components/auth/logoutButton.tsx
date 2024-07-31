@@ -1,23 +1,21 @@
+"use client";
+// import { Button } from '../ui/button';
+// import { FiLogOut } from 'react-icons/fi'
+import { logout } from '@/actions/logout';
 
-import { signOut } from "@/auth"
-import { Button } from '../ui/button';
-import { FiLogOut } from 'react-icons/fi'
+interface LogOutButtonProps {
+  children?: React.ReactNode
+}
 
-export const LogOutButton = () => {
+export const LogOutButton = ({children}: LogOutButtonProps) => {
+  const onClick =  () => {
+    logout();
+  } 
     return ( 
-        <form
-        action={async () => {
-          "use server"
-          await signOut({
-            redirectTo: "/auth/login",
-          })
-        }}
-      >
-    <Button type="submit">
-        <FiLogOut className="mr-2" />
-        Sign Out
-    </Button>
-    </form>
+    <span onClick={onClick} className='cursor-pointer'>
+        {children}
+    </span>
+
     )
   }
   

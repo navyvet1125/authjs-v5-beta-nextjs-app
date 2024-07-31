@@ -23,22 +23,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     // verifyRequest: "/auth/verify",
     // newUser: "/auth/register",
   },
-  // events: {
-  //   async linkAccount({ user }) {
-  //     if (!user || !user.email) return;
-  //     const ADMIN_USERS = process.env.ADMIN_USERS?.split(", ") || [];
-  //     let role: UserRole = "USER";
-  //     ADMIN_USERS?.includes(user.email)? role = "ADMIN" : role = "USER";
-        
-  //     await db.user.update({
-  //       where: { id: user.id },
-  //       data: { 
-  //         emailVerified: new Date(),
-  //         role
-  //       },
-  //     });
-  //   }
-  // },
+
   callbacks: {
     async signIn({ user, account, email }) {
       // Ensure user object is defined
@@ -55,16 +40,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (existingUser?.isTwoFactorEnabled && account.type === "credentials") {
         try {
           const existingToken = await getTwoFactorTokenByEmail(user.email!);
-          if (!existingToken){
-          const twoFactorToken = await generateTwoFactorToken(existingUser.email);
-            await sendTwoFactorEmail(existingUser.email, twoFactorToken!.token);
-            return `/auth/login?twoFactor=true`;
-          }
-          if (new Date(existingToken.expiresAt) < new Date()){
+          if (existingToken && new Date(existingToken.expiresAt) < new Date()){
             findAndDeleteTwoFactorTokenByToken(existingToken.token);
             return '/auth/login?error=expired';
           }
-          return `/auth/login?twoFactor=true`;
+          // Delete any existing token for the user
+          if (existingToken){
+            await findAndDeleteTwoFactorTokenByToken(existingToken.token);
+          }
+          // Generate a new token and send the code to the user via email
+          const twoFactorToken = await generateTwoFactorToken(existingUser.email);
+          await sendTwoFactorEmail(existingUser.email, twoFactorToken!.token);
+          return `/auth/login?twoFactor=true?sessionId=${twoFactorToken!.sessionId}`;
         } catch (error) {
           console.error("Error in signIn! ", error);
           return false;

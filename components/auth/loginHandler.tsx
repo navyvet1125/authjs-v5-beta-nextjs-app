@@ -9,17 +9,16 @@ import { LoginHandlerForm } from '@/components/auth/loginHandlerForm';
 import { login } from "@/actions/login";
 import { twoFactorLogin } from '@/actions/two-factor-login';
 import { toast } from "sonner";
-// import { TwoFactorInput } from "@/components/auth/twoFactorInput";  
+import { UUID } from "crypto";
 
 
 
 const LoginHandler = () => {
     const searchParams = useSearchParams();
-    // const router = useRouter();
     const urlError = searchParams.get("error") === "OAuthAccountNotLinked" 
         ? "Email already in use with different provider" 
         : "";
-    const [email, setEmail] = useState("");
+    const [sessionId, setSessionId] = useState<UUID | undefined >(undefined);
     const [error, setError] = useState<string | undefined>("");
     const [success, setSuccess] = useState<string | undefined>("");
     const [twoFactor, setTwoFactor] = useState(false);
@@ -27,6 +26,12 @@ const LoginHandler = () => {
     const router = useRouter();
 
     const LoginHandler = async (data: z.infer<typeof LoginSchema>) => {
+      // Handle Login form submission
+      // Call login function from actions/login.ts
+      // Handle response
+      // If client is authenticated, check if two factor is required
+      // If two factor is required redirect to two factor form
+      // If two factor is not required redirect to appropriate page
       setError("");
       setSuccess("");
       startTransition(async () => {
@@ -45,7 +50,7 @@ const LoginHandler = () => {
           toast.success("Two factor token sent");
           setSuccess("Two factor token sent");
           setTwoFactor(true);
-          setEmail(data.email);
+          setSessionId(response.sessionId);
           return;
         }
         toast.success("Login successful");
@@ -55,6 +60,12 @@ const LoginHandler = () => {
     };
 
     const twoFactorHandler = async (data: z.infer<typeof TwoFactorSchema>) => {
+      // Handle Two Factor form submission
+      // Call twoFactorLogin function from actions/two-factor-login.ts
+      // Handle response
+      // If client is authenticated, redirect to appropriate page
+      // If two factor token is expired, redirect to login form
+
       setError("");
       setSuccess("");
       startTransition(async () => {
@@ -65,7 +76,7 @@ const LoginHandler = () => {
           setError(response.error);
           if (response.error.includes("expired")) {
             setTwoFactor(false);
-            setEmail("");
+            setSessionId(undefined);
           }
           return;
         }
@@ -77,11 +88,11 @@ const LoginHandler = () => {
 
   return (
     <div>
-      {twoFactor ? 
+      {twoFactor&&sessionId ? 
       (<TwoFactorForm 
         onFormSubmit={twoFactorHandler} 
         disabled={isPending} 
-        email={email}
+        sessionId={sessionId}
         error={error}
         success={success}
         />) :

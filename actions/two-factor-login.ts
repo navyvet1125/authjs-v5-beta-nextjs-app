@@ -6,9 +6,9 @@ import { signIn } from "@/auth";
 import { TwoFactorSchema } from "@/schemas";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import { AuthError } from "next-auth";
-import { getUserByEmail } from "@/data/user";
-import { generateTwoFactorToken } from "@/lib/tokens";
-import { sendTwoFactorEmail } from "@/lib/mail";
+// import { getUserByEmail } from "@/data/user";
+// import { generateTwoFactorToken } from "@/lib/tokens";
+// import { sendTwoFactorEmail } from "@/lib/mail";
 import { findAndDeleteTwoFactorTokenByToken, getTwoFactorTokenByToken } from "@/data/twoFactorToken";
 // import { redirect } from "next/dist/server/api-utils";
 
@@ -21,7 +21,7 @@ export const twoFactorLogin = async (values: z.infer<typeof TwoFactorSchema>) =>
         };
     }
 
-    const { token, email } = validatedFields.data;
+    const { token, sessionId } = validatedFields.data;
     try {
         const existingToken = await getTwoFactorTokenByToken(token);
         if (!existingToken) {
@@ -40,7 +40,7 @@ export const twoFactorLogin = async (values: z.infer<typeof TwoFactorSchema>) =>
 
         await signIn("twoFactor", {
             token,
-            email,
+            sessionId,
             redirectTo: DEFAULT_LOGIN_REDIRECT,
         });
         return { success: "Logged in" };

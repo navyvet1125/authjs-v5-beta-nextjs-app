@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { UUID } from "crypto";
 
 export const getTwoFactorTokenByToken = async (token: string) => {
     try {
@@ -12,6 +13,19 @@ export const getTwoFactorTokenByToken = async (token: string) => {
         return null;
     }
 }
+
+export const getTwoFactorTokenByTokenAndSessionId = async (token: string, sessionId: UUID) => {
+    try {
+        const twoFactorToken = await db.twoFactorToken.findFirst({
+            where: { token, sessionId },
+        });
+        return twoFactorToken;
+    } 
+    catch (error) {
+        console.error("Error in getTwoFactorTokenByTokenAndSessionId! ", error);
+        return null;
+    }
+};
 
 export const getTwoFactorTokenByEmail = async (email: string) => {
     try {

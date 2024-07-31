@@ -31,9 +31,11 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
             // redirectTo: DEFAULT_LOGIN_REDIRECT,
         });
         if (result.includes("twoFactor=true")) {
+            const sessionId = result.split("sessionId=")[1];
             return {
                 success: "Two factor token sent", 
-                twoFactor: true
+                twoFactor: true,
+                sessionId,
         };
         } else if (result.includes("error=expired")) {
             return { 

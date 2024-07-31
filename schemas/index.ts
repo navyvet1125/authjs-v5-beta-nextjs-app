@@ -17,7 +17,7 @@ export const NewPasswordSchema = z.object({
 });
 
 export const TwoFactorSchema = z.object({
-    email: z.string().email({}),
+    sessionId: z.string().uuid({}),
     token: z.string().length(6, {
         message: "Token Required"
     }).regex(/^\d{6}$/, {

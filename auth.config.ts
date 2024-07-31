@@ -6,8 +6,13 @@ import Credentials from "next-auth/providers/credentials"
 
 import { LoginSchema } from "@/schemas"
 import { getUserByEmail } from "@/data/user";
-import { findAndDeleteTwoFactorTokenByToken, getTwoFactorTokenByToken } from "@/data/twoFactorToken"
-// import { UUID } from "crypto"
+import { 
+    findAndDeleteTwoFactorTokenByToken,
+    getTwoFactorTokenByToken,
+    getTwoFactorTokenByTokenAndSessionId
+} from "@/data/twoFactorToken"
+
+import { UUID } from "crypto"
 
 export default { 
     providers: [
@@ -45,13 +50,15 @@ export default {
             id: "twoFactor",
             credentials: {
                 token: { label: "Token", type: "text" },
-                email: { label: "email", type: "text" }
+                email: { label: "email", type: "text" },
+                sessionId: { label: "Session ID", type: "text" }
             },
             async authorize(credentials) {
                 try {
                     // Get the token and sessionId from the credentials
-                    const { token, email } = credentials as { token: string, email: string };
-                    const twoFactorToken = await getTwoFactorTokenByToken(token);
+                    const { token, email, sessionId } = credentials as { token: string, email: string, sessionId: UUID };
+                    // Get the two factor token by token and sessionId
+                    const twoFactorToken = await getTwoFactorTokenByTokenAndSessionId(token, sessionId);
 
                     // If the token is not found, return null
                     if (!twoFactorToken ) return null;
@@ -62,8 +69,6 @@ export default {
                         findAndDeleteTwoFactorTokenByToken(token);
                         return null;
                     }
-                    // Check if the sessionId matches the one stored in the token, if it doesn't, return null
-                    if (twoFactorToken.email !== email) return null;
 
                     // Delete the token
                     findAndDeleteTwoFactorTokenByToken(token);

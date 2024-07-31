@@ -17,11 +17,12 @@ import { Button } from "@/components/ui/button";
 import { FormError } from "@/components/formError";
 import { FormSuccess } from "@/components/formSuccess";
 import { TwoFactorInput } from "@/components/auth/twoFactorInput";  
+import { UUID } from "crypto";
 
 interface TwoFactorFormProps {
     onFormSubmit: (data: z.infer<typeof TwoFactorSchema>) => void;
     disabled?: boolean;
-    email: string;
+    sessionId: UUID;
     error?: string;
     success?: string;
 }
@@ -29,7 +30,7 @@ interface TwoFactorFormProps {
 export const TwoFactorForm = ({ 
     onFormSubmit,
     disabled,
-    email,
+    sessionId,
     error,
     success
 }: TwoFactorFormProps) => {
@@ -38,7 +39,7 @@ export const TwoFactorForm = ({
         resolver: zodResolver(TwoFactorSchema),
         defaultValues: {
             token: "",
-            email,
+            sessionId,
         }
     });
 

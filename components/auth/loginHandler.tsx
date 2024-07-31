@@ -59,11 +59,7 @@ const LoginHandler = () => {
       setSuccess("");
       startTransition(async () => {
         const response = await twoFactorLogin(data);
-        if(!response) {
-          toast.error("An unexpected error occurred");
-          setError("An unexpected error occurred");
-          return;
-        }
+        if(!response) return;
         if ( response.error) {
           toast.error(response.error);
           setError(response.error);

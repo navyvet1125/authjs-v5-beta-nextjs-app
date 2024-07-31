@@ -3,17 +3,17 @@ import * as z from "zod";
 // import { NextResponse } from "next/server";
 
 import { signIn } from "@/auth";
-import { LoginSchema } from "@/schemas";
+import { TwoFactorSchema } from "@/schemas";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import { AuthError } from "next-auth";
 import { getUserByEmail } from "@/data/user";
 import { generateTwoFactorToken } from "@/lib/tokens";
 import { sendTwoFactorEmail } from "@/lib/mail";
 import { findAndDeleteTwoFactorTokenByToken, getTwoFactorTokenByToken } from "@/data/twoFactorToken";
-import { redirect } from "next/dist/server/api-utils";
+// import { redirect } from "next/dist/server/api-utils";
 
-export const login = async (values: z.infer<typeof LoginSchema>) => {
-    const validatedFields = LoginSchema.safeParse(values);
+export const twoFactorLogin = async (values: z.infer<typeof TwoFactorSchema>) => {
+    const validatedFields = TwoFactorSchema.safeParse(values);
 
     if (!validatedFields.success) {
         return {
@@ -21,30 +21,29 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
         };
     }
 
-    const { email, password } = validatedFields.data;
-
+    const { token, email } = validatedFields.data;
     try {
-        const result = await signIn("credentials", {
-            email,
-            password,
-            redirect: false,
-            // redirectTo: DEFAULT_LOGIN_REDIRECT,
-        });
-        if (result.includes("twoFactor=true")) {
+        const existingToken = await getTwoFactorTokenByToken(token);
+        if (!existingToken) {
             return {
-                success: "Two factor token sent", 
-                twoFactor: true
-        };
-        } else if (result.includes("error=expired")) {
-            return { 
-                error: "Token expired"
-            };
-        } else {
-            return {
-                success: "Logged in",
-                redirectTo: DEFAULT_LOGIN_REDIRECT,
+                error: "Invalid token",
             };
         }
+
+        const isExpired = new Date(existingToken.expiresAt) < new Date();
+        if (isExpired) {
+            findAndDeleteTwoFactorTokenByToken(token);
+            return {
+                error: "Token expired",
+            };
+        }
+
+        await signIn("twoFactor", {
+            token,
+            email,
+            redirectTo: DEFAULT_LOGIN_REDIRECT,
+        });
+        return { success: "Logged in" };
 
     } catch (error) {
         if (error instanceof AuthError){
@@ -59,4 +58,5 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
         } 
         throw error;
     }
+
 }

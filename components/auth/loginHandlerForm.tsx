@@ -1,9 +1,9 @@
 "use client";
 import * as z from "zod";
-import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+// import { useState, useTransition } from "react";
+// import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { useSearchParams } from "next/navigation";
+// import { useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginSchema } from "@/schemas";
 import { Input } from "@/components/ui/input";
@@ -24,56 +24,28 @@ import { FormSuccess } from "@/components/formSuccess";
 import { login } from "@/actions/login";
 import { TwoFactorInput } from "@/components/auth/twoFactorInput";  
 
-// import { FieldValues } from "react-hook-form/dist";
+interface LoginHandlerFormProps {
+  onFormSubmit: (data: z.infer<typeof LoginSchema>) => void;
+  disabled?: boolean;
+  error?: string;
+  success?: string;
+}
 
-export const LoginForm = () => {
-    const { formState: { errors } } = useForm();
-    const searchParams = useSearchParams();
-    const router = useRouter();
-    const urlError = searchParams.get("error") === "OAuthAccountNotLinked" 
-        ? "Email already in use with different provider" 
-        : "";
-    const [twoFactor, setTwoFactor] = useState(false);
-    const [error, setError] = useState<string | undefined>("");
-    const [success, setSuccess] = useState<string | undefined>("");
-    const [isPending, startTransition] = useTransition();
+export const LoginHandlerForm = ({onFormSubmit, disabled, error, success}: LoginHandlerFormProps) => {
+    const formSubmit = onFormSubmit || (() => {});
     const form = useForm<z.infer<typeof LoginSchema>>({
         resolver: zodResolver(LoginSchema),
         defaultValues: {
             email: "",
             password: "",
-            token: "",
+            // token: "",
         }
     });
 
     const onSubmit = async (data: z.infer<typeof LoginSchema>) => {
-        console.log("Form data submitted:", data);
-        setError("");
-        setSuccess("");
-        startTransition(async () => {
-            try {
-                const response = await login(data);
-                console.log("Login response:", response);
-                if(!response) {
-                    setError("An unexpected error occurred");
-                    return;
-                }
-                if (response.error) {
-                    setError(response.error);
-                } else if (response.success) {
-                    setSuccess(response.success);
-                    if (response.twoFactor) {
-                        setTwoFactor(true);
-                    } else if (response.redirectTo) {
-                        router.push(response.redirectTo);
-                    }
-                }
-            } catch (e) {
-                console.error("Error caught:", e);
-                setError("An unexpected error occurred");
-            }
-        });
+        formSubmit(data);
     };
+
     return (
         <CardWrapper
             headerLabel="Welcome Back!"
@@ -87,7 +59,6 @@ export const LoginForm = () => {
                     className="space-y-6"
                 >
                     <div className="space-y-4">
-                        {!twoFactor &&(<>
                         <FormField
                             control={form.control}
                             name="email"
@@ -96,7 +67,7 @@ export const LoginForm = () => {
                                     <FormLabel>Email</FormLabel>
                                     <FormControl>
                                         <Input {...field}
-                                        disabled={isPending}
+                                        disabled={disabled}
                                         placeholder="email@example.com" 
                                         type="email"
                                         autoComplete="email"
@@ -113,7 +84,7 @@ export const LoginForm = () => {
                                     <FormLabel>Password</FormLabel>
                                     <FormControl>
                                         <Input {...field}
-                                        disabled={isPending}
+                                        disabled={disabled}
                                         placeholder="********" 
                                         type="password"
                                         autoComplete="current-password"
@@ -132,39 +103,11 @@ export const LoginForm = () => {
                                     <FormMessage />
                                 </FormItem>)}
                         />
-                        </>)}
-                        {twoFactor && (
-                            <FormField
-                            control={form.control}
-                            name="token"
-                            render={({ field }) => (
-                                // <TwoFactorInput
-                                // {...field} 
-                                // disabled={isPending}
-                                // placeholder="_"
-                                // protected={false}
-                                // value={field.value}
-                                // />
-                                <FormItem>
-                                    <FormLabel>2FA Code</FormLabel>
-                                    <FormControl>
-                                        <Input {...field}
-                                        disabled={isPending}
-                                        placeholder="123456" 
-                                        type="text"
-                                         />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                                )}
-                            />
-                  
-                        )}
                     </div>
-                    <FormError message={error || urlError}/>
-                    <FormSuccess message={success}/>
+                    {error && <FormError message={error} />}
+                    {success && <FormSuccess message={success} />}
                     <Button 
-                    disabled={isPending}
+                    disabled={disabled}
                     type="submit"
                     className="w-full"
                     >

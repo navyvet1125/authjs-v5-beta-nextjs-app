@@ -16,6 +16,14 @@ export const NewPasswordSchema = z.object({
     .regex(/[^a-zA-Z0-9]/, 'Password must contain at least one special character'),
 });
 
+export const TwoFactorSchema = z.object({
+    email: z.string().email({}),
+    token: z.string().length(6, {
+        message: "Token Required"
+    }).regex(/^\d{6}$/, {
+        message: "Token must be a 6-digit number"
+    })
+});
 
 export const LoginSchema = z.object({
     email: z.string().email({
@@ -24,6 +32,11 @@ export const LoginSchema = z.object({
     password: z.string().min(1, {
         message: "Please enter a password"
     }),
+    token: z.string().length(6, {
+        message: "Token Required"
+    }).regex(/^\d{6}$/, {
+        message: "Token must be a 6-digit number"
+    }).optional(),    
 });
 
 export const RegisterSchema = z.object({

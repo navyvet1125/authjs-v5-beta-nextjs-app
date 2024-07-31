@@ -44,6 +44,7 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
         } else {
             return {
                 success: "Logged in",
+                twoFactor: false,
                 redirectTo: DEFAULT_LOGIN_REDIRECT,
             };
         }

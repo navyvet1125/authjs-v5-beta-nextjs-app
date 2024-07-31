@@ -8,6 +8,8 @@ import { TwoFactorForm } from '@/components/auth/twoFactorForm';
 import { LoginHandlerForm } from '@/components/auth/loginHandlerForm';
 import { login } from "@/actions/login";
 import { twoFactorLogin } from '@/actions/two-factor-login';
+// import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
+
 import { toast } from "sonner";
 import { UUID } from "crypto";
 
@@ -53,9 +55,11 @@ const LoginHandler = () => {
           setSessionId(response.sessionId);
           return;
         }
-        toast.success("Login successful");
-        setSuccess("Login successful");
-        router.push(response.redirectTo || "/settings");
+        if (response.redirectTo) {
+          toast.success("Login successful");
+          setSuccess("Login successful");
+          router.push(response.redirectTo);
+        }
       });
     };
 

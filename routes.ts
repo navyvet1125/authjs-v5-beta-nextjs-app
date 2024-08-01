@@ -4,7 +4,9 @@ import { auth } from '@/auth';
 export const publicRoutes = [
     "/",
     "/auth/new-verification",
+    // "/api/admin", //Uncomment to expose Admin API Route
 ];
+
 
 // An array of routes that are used for authentication
 // These routes will redirect logged in users to protected routes

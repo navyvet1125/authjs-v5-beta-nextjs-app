@@ -4,7 +4,7 @@ import { metadata as layoutMetadata } from '@/app/(protected)/layout';
 export const metadata = {
     ...layoutMetadata,
     title: `${layoutMetadata.title} - Admin Page`,
-    description: 'Admin Page',
+    description: 'Admin Example Page',
   };
 const AdminPage = () => {
   return (

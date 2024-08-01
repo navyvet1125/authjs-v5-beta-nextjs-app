@@ -16,6 +16,8 @@ import { sendTwoFactorEmail } from "@/lib/mail";
 
 interface RoledUser extends AdapterUser {
   role: UserRole;
+  emailVerified: Date | null;
+  isTwoFactorEnabled: boolean;
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -73,12 +75,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (!token.sub || !user) return token;
       token.role = (user as RoledUser).role;
       token.emailVerified = (user as RoledUser).emailVerified;
+      token.isTwoFactorEnabled = (user as RoledUser).isTwoFactorEnabled;
       return token;
     },
     async session({ session, token }) {
       // Add role, emailVerified, and user ID  to the session
-      if(token.role) session.user.role = token.role as UserRole;
-      if(token.emailVerified) session.user.emailVerified = token.emailVerified as Date | null;
+      if(token.role) {
+        session.user.role = token.role as UserRole;
+        session.user.emailVerified = token.emailVerified as Date | null;
+        session.user.isTwoFactorEnabled = token.isTwoFactorEnabled as boolean;
+      }
       if(token.sub) session.user.id = token.sub;
       return session;
     },

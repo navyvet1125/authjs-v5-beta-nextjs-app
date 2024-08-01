@@ -18,7 +18,7 @@ export const Header = ({label}: HeaderProps) => {
                 "text-3xl font-semibold",
                 font.className
             )}>
-                Auth
+                🔐Auth
             </h1>
             <p className="text-muted-foreground text-sm">
                 {label}

@@ -1,6 +1,5 @@
 // import { LoginForm } from '@/components/auth/loginForm'
 import LoginHandler  from '@/components/auth/loginHandler'
-import { Toaster } from 'sonner'
 import React from 'react'
 import { metadata as layoutMetadata } from '@/app/layout';
 
@@ -15,7 +14,6 @@ const LoginPage = () => {
     <div>
       {/* <LoginForm /> */}
       <LoginHandler />
-      <Toaster />
     </div>
   )
 }

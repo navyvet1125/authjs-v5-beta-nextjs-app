@@ -26,7 +26,8 @@ const AdminClientWrapper = () => {
   };
 
   const onApiRouteClick = () => {
-    axios.get("/api/admin")
+    // axios.get("/api/admin?hello=world", {withCredentials: true, headers: {"Content-Type": "application/json"}})
+    fetch("/api/admin?hello=world", {method: "GET", headers: {"Content-Type": "application/json"}})
     .then((res) => {
       if (res.status === 200) {
         toast.success("Admin User Allowed");

@@ -14,7 +14,8 @@ import {
 
 import { UUID } from "crypto"
 
-export default { 
+export default {
+    useSecureCookies: process.env.NODE_ENV === 'production',
     providers: [
         GitHub,
         Google,

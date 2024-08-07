@@ -2,7 +2,7 @@
 import { useState, useTransition } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { set, z } from "zod"
+import  * as z  from "zod"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -24,8 +24,8 @@ import { UserRole } from "@prisma/client"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { SettingsSchema } from "@/schemas";
-import { FormError } from "@/components/formError"
-import { FormSuccess } from "@/components/formSuccess"
+// import { FormError } from "@/components/formError"
+// import { FormSuccess } from "@/components/formSuccess"
 import { toast } from "sonner"
 
 type FormValues = z.infer<typeof SettingsSchema>
@@ -46,10 +46,7 @@ export function SettingsForm({ isOauth }:SettingsFormProps) {
         role: user?.role || UserRole.USER,
         isOauth: isOauth || false,
     };
-    // const [formValues, setFormValues] = useState<FormValues>(initialValues);
     const [isPending, startTransition] = useTransition();
-    // const [error, setError] = useState<string | undefined>(undefined);
-    // const [success, setSuccess] = useState<string | undefined>(undefined);
     const [isChanged, setIsChanged] = useState(false);
     const form = useForm<FormValues>({
         resolver: zodResolver(SettingsSchema),
@@ -131,7 +128,7 @@ export function SettingsForm({ isOauth }:SettingsFormProps) {
                 {...field} 
                 onChange={onChange} 
                 // value={formValues.name}
-                disabled={!user}
+                disabled={!user || isPending}
                 />
               </FormControl>
               <FormDescription>
@@ -154,7 +151,7 @@ export function SettingsForm({ isOauth }:SettingsFormProps) {
                 onChange={onChange}
                 autoComplete="email"
                 // value={formValues.email}
-                disabled={!user || isOauth}
+                disabled={!user || isOauth || isPending}
                 />
                 </FormControl>
                 <FormDescription>
@@ -179,7 +176,7 @@ export function SettingsForm({ isOauth }:SettingsFormProps) {
                 onChange={onChange}
                 autoComplete="current-password"
                 // value={formValues.password}
-                disabled={!user}
+                disabled={!user || isPending}
                 // value={password}
                 />
               </FormControl>
@@ -201,7 +198,7 @@ export function SettingsForm({ isOauth }:SettingsFormProps) {
                 {...field} 
                 onChange={onChange}
                 // value={formValues.newPassword}
-                disabled={!user}
+                disabled={!user || isPending}
                 // value={newPassword}
                 />
               </FormControl>
@@ -219,7 +216,9 @@ export function SettingsForm({ isOauth }:SettingsFormProps) {
               <Select onValueChange={(value)=> {
                 field.onChange(value);
                 onChange({ target: { name: "role", value } } as any);
-                }} defaultValue={field.value}>
+                }} defaultValue={field.value}
+                disabled={ isPending}
+                >
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="User Role" />
@@ -255,7 +254,8 @@ export function SettingsForm({ isOauth }:SettingsFormProps) {
                       onCheckedChange={(value) => {
                         field.onChange(value);
                         onChange({ target: { name: "isTwoFactorEnabled", value } } as any);
-                    }}
+                      }}
+                      disabled={isOauth || isPending}
                     />
                   </FormControl>
                 </FormItem>
@@ -265,7 +265,7 @@ export function SettingsForm({ isOauth }:SettingsFormProps) {
         {/* <FormError message={error} /> */}
         {/* <FormSuccess message={success} />  */}
 
-        <Button type="submit" disabled={!isChanged}>Submit</Button>
+        <Button type="submit" disabled={!isChanged || isPending}>Submit</Button>
       </form>
     </Form>
   )

@@ -23,7 +23,7 @@ const SettingsPage = async () => {
     <Card className='min-w-[412px] w-[600px]'>
       <CardHeader>
         <p className='text-2xl font-semibold text-center'>
-          ⚙️ Test Settings
+          ⚙️ Settings
         </p>
       </CardHeader>
       <CardContent>

@@ -28,6 +28,8 @@ export default async function DashboardLayout({
         <SessionProvider session={session}>
             <Navbar />
             {children}
+            <Toaster />
+
         </SessionProvider>
         
     </div>

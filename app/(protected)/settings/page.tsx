@@ -1,11 +1,14 @@
-import React from 'react'
+// "use client";
+// import React, {useTransition} from 'react'
+// import { useSession } from 'next-auth/react';
 // import { auth } from '@/auth'
-import { LogOutButton } from '@/components/auth/logoutButton';
+// import { LogOutButton } from '@/components/auth/logoutButton';
 // import { useCurrentUser } from '@/hooks/use-current-user';
 // import TwoFactorInput from '@/components/auth/twoFactorInput';
-
-import { metadata as layoutMetadata } from '@/app/(protected)/layout';
 import { currentUser } from '@/lib/auth';
+import { SettingsForm } from '@/app/(protected)/settings/userSettingsForms';
+import { metadata as layoutMetadata } from '@/app/(protected)/layout';
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
 
 export const metadata = {
     ...layoutMetadata,
@@ -15,16 +18,18 @@ export const metadata = {
 
 
 const SettingsPage = async () => {
-  const  user = await currentUser();
+  const user = await currentUser();
   return (
-      <div className='bg-white p-10 rounded-xl w-[600px]'>
-          {/* {!session?.user.emailVerified && (<div className='w-full bg-destructive/10 text-destructive font-mono'>Verify Your Email!</div>)} */}
-          <h1 className='text-xl font-semibold'>Dashboard</h1>
-          <h2 className='text-lg font-semibold'>Session: </h2>
-          <p>{ JSON.stringify(user, null, 2) }</p>
-          <LogOutButton>Logout</LogOutButton>
-
-      </div>
+    <Card className='min-w-[412px] w-[600px]'>
+      <CardHeader>
+        <p className='text-2xl font-semibold text-center'>
+          ⚙️ Test Settings
+        </p>
+      </CardHeader>
+      <CardContent>
+        <SettingsForm isOauth={user?.isOauth}/>
+      </CardContent>
+    </Card>
   )
 }
 

@@ -18,9 +18,10 @@ interface RoledUser extends AdapterUser {
   role: UserRole;
   emailVerified: Date | null;
   isTwoFactorEnabled: boolean;
+  isOauth: boolean;
 }
 
-export const { handlers, signIn, signOut, auth } = NextAuth({
+export const { handlers, signIn, signOut, auth, unstable_update } = NextAuth({
   pages: {
     signIn: "/auth/login",
     // signOut: "/auth/logout",
@@ -70,12 +71,31 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       
       return true;
     },
-    async jwt({ token, user }) {
-      // Add role and emailVerfied to the token
-      if (!token.sub || !user) return token;
-      token.role = (user as RoledUser).role;
-      token.emailVerified = (user as RoledUser).emailVerified;
-      token.isTwoFactorEnabled = (user as RoledUser).isTwoFactorEnabled;
+    async jwt({ token, user, session, account }) {
+      // User is only defined on sign in
+      // Session is only defined on refresh
+
+      // If session was refreshed, update token
+      if (session) {
+        const {name, email, role, emailVerified, isTwoFactorEnabled} = session.user;
+        console.log("Session refreshed for user: ", role, name, email);
+        token.name = name;
+        token.email = email;
+        token.role = role;
+        token.emailVerified = emailVerified;
+        token.isTwoFactorEnabled = isTwoFactorEnabled;
+      }
+
+      // if user is defined, add extended user info to the token
+      // RoledUser is used to extend user with role, emailVerified, and isTwoFactorEnabled
+      if (user) {
+        console.log("User signed in");
+        token.sub = user.id;
+        token.role = (user as RoledUser).role;
+        token.emailVerified = (user as RoledUser).emailVerified;
+        token.isTwoFactorEnabled = (user as RoledUser).isTwoFactorEnabled;
+        token.isOauth = account?.type === "oauth";
+      }
       return token;
     },
     async session({ session, token }) {
@@ -84,6 +104,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.role = token.role as UserRole;
         session.user.emailVerified = token.emailVerified as Date | null;
         session.user.isTwoFactorEnabled = token.isTwoFactorEnabled as boolean;
+        session.user.isOauth = token.isOauth as boolean;
       }
       if(token.sub) session.user.id = token.sub;
       return session;
